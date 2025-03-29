@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
-import JobCard from './JobCard';
+import JobCard from '../components/JobCard';
 
 const JobListPage = ({ jobsUpdated }) => {
   const [jobs, setJobs] = useState([]);

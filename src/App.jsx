@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import JobListPage from "./components/JobListPage";
+import JobListPage from "./pages/JobListPage";
 import JobCreationModal from "./components/JobCreationModal";
 
 const App = () => {

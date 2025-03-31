@@ -12,7 +12,7 @@ const Navbar = ({ openModal }) => {
             <div className="flex-shrink-0">
               <img 
                 className="h-10 w-10 rounded-full object-cover"
-                src="/cybermind_works_logo-qLEHG32l.jpeg" 
+                src="/cybermind_works_logo.jpeg" 
                 alt="logo"
               />
             </div>

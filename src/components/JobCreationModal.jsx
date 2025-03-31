@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
+import axios from 'axios';
 
 const JobCreationModal = ({ isOpen, onClose, onJobCreated }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -59,24 +60,21 @@ const JobCreationModal = ({ isOpen, onClose, onJobCreated }) => {
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     try {
-      const response = await fetch('http://localhost:5000/api/jobs', {
-        method: 'POST',
+      const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/jobs`, data, {
         headers: {
           'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
+        }
       });
       
-      if (response.ok) {
+      if (response.status === 200 || response.status === 201) {
         reset(); // Reset form fields
         onJobCreated(); // Notify parent component
       } else {
-        const errorData = await response.json();
-        console.error('Error creating job:', errorData);
+        console.error('Error creating job:', response.data);
         alert('Failed to create job. Please try again.');
       }
     } catch (error) {
-      console.error('Error creating job:', error);
+      console.error('Error creating job:', error.response?.data || error.message);
       alert('An error occurred. Please try again.');
     } finally {
       setIsSubmitting(false);

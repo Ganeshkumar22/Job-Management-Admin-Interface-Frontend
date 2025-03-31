@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
+import axios from 'axios';
 import JobCard from '../components/JobCard';
 
 const JobListPage = ({ jobsUpdated }) => {
@@ -24,52 +25,49 @@ const JobListPage = ({ jobsUpdated }) => {
   const jobType = watch('jobType');
   const minSalary = watch('minSalary');
   const maxSalary = watch('maxSalary');
+
+  const BASE_URL = import.meta.env.VITE_REACT_APP_BACKEND_URL.replace(/\/$/, '');
   
   // Fetch jobs from API
   const fetchJobs = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/jobs');
-      const data = await response.json();
-      setJobs(data);
-      // Don't set filtered jobs here - let the filter effect handle that
+      const response = await axios.get(`${BASE_URL}/api/jobs`);
+      setJobs(response.data);
     } catch (error) {
       console.error('Error fetching jobs:', error);
     } finally {
       setLoading(false);
     }
   }, []);
-  
+
   useEffect(() => {
     fetchJobs();
-  }, [fetchJobs, jobsUpdated]); // Re-fetch when jobsUpdated changes
+  }, []);
 
-  // Filter jobs whenever the filter criteria change
   useEffect(() => {
-    if (jobs.length === 0) return; // Skip filtering if no jobs
-    
+    if (jobsUpdated) fetchJobs();
+  }, [jobsUpdated]);
+
+  useEffect(() => {
+    if (!jobs.length) return;
     const filtered = jobs.filter(job => {
-      const matchesTitle = job.title.toLowerCase().includes(jobTitle.toLowerCase()) || !jobTitle;
-      const matchesLocation = job.location.toLowerCase().includes(location.toLowerCase()) || !location;
-      const matchesType = job.jobType === jobType || !jobType;
-      
-      // Extract numeric value from salary string for comparison
-      const salaryNum = parseInt(job.salary.replace(/[^0-9]/g, ''));
-      const matchesSalary = (!minSalary || salaryNum >= minSalary) && 
-                           (!maxSalary || salaryNum <= maxSalary);
-      
-      return matchesTitle && matchesLocation && matchesType && matchesSalary;
+      const salaryNum = Number(job.salary) || 0;
+      return (
+        (job.title.toLowerCase().includes(jobTitle.toLowerCase()) || !jobTitle) &&
+        (job.location.toLowerCase().includes(location.toLowerCase()) || !location) &&
+        (job.jobType === jobType || !jobType) &&
+        (salaryNum >= minSalary && salaryNum <= maxSalary)
+      );
     });
-    
     setFilteredJobs(filtered);
   }, [jobs, jobTitle, location, jobType, minSalary, maxSalary]);
 
   return (
-    <div className="container mx-auto px-4 py-4">
+    <div className="container mx-auto py-4">
       
       {/* Filter Form */}
       <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-        <h2 className="text-xl font-semibold mb-4">Filters</h2>
         <form className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -138,12 +136,12 @@ const JobListPage = ({ jobsUpdated }) => {
       
       {/* Job Listings */}
       {loading ? (
-        <div className="text-center py-8">
+        <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading jobs...</p>
         </div>
       ) : filteredJobs.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {filteredJobs.map((job) => (
             <JobCard 
               key={job._id} 

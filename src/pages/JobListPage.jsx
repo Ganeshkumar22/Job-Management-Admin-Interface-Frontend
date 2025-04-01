@@ -64,7 +64,7 @@ const JobListPage = ({ jobsUpdated }) => {
   }, [jobs, jobTitle, location, jobType, minSalary, maxSalary]);
 
   return (
-    <div className="container mx-auto py-4">
+    <div className="container mx-auto px-6 py-4">
       
       {/* Filter Form */}
       <div className="bg-white p-6 rounded-lg shadow-md mb-8">
